@@ -10,4 +10,6 @@ build:
 lint:
 	gometalinter --vendor --deadline=60s ./...
 
+ci: lint
+
 .DEFAULT_GOAL := build
