@@ -43,6 +43,7 @@ func main() {
 
 	waitInterruptSignal()
 	log.Info("Stopping PostgreSQL activity watchdog")
+	c.Stop()
 }
 
 func waitInterruptSignal() {
