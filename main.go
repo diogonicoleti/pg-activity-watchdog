@@ -16,10 +16,12 @@ import (
 
 var (
 	version        = "dev"
-	dataSourceName = kingpin.Flag("datasource", "Database connection string").Short('d').
-			Default("user=postgres dbname=postgres sslmode=disable").String()
-	threshould = kingpin.Flag("threshould", "Threshould to take a snapshot").Short('t').
-			Default("30").Int()
+	dataSourceName = kingpin.Flag("datasource", "Database connection string").
+			Short('d').Default("user=postgres dbname=postgres sslmode=disable").String()
+	threshould = kingpin.Flag("threshould", "Threshould to take a snapshot").
+			Short('t').Default("30").Int()
+	interval = kingpin.Flag("interval", "Interval to execute the watchdog").
+			Short('i').Default("1s").String()
 )
 
 func main() {
@@ -34,7 +36,7 @@ func main() {
 	)
 
 	c := cron.New()
-	if _, err := c.AddFunc("@every 500ms", watchdog.Execute); err != nil {
+	if _, err := c.AddFunc("@every "+*interval, watchdog.Execute); err != nil {
 		log.WithError(err).Fatal("Failed to schedule watchdog")
 	}
 	c.Start()
