@@ -94,7 +94,7 @@ func (w *Watchdog) snapshotActivities(clientAddr string) error {
 		return err
 	}
 
-	activitiesJSON, err := yaml.Marshal(activities)
+	bts, err := yaml.Marshal(activities)
 	if err != nil {
 		return err
 	}
@@ -102,7 +102,7 @@ func (w *Watchdog) snapshotActivities(clientAddr string) error {
 	log.Infof("Generating snapshot for client %s", clientAddr)
 	return ioutil.WriteFile(
 		outputDir+"/"+clientAddr+"_"+time.Now().Format(time.RFC3339)+".yaml",
-		activitiesJSON,
+		bts,
 		fileMode,
 	)
 }
