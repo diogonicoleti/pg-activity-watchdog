@@ -28,6 +28,7 @@ type pgClientActivity struct {
 }
 
 type pgActivity struct {
+	ProcessID    *int    `db:"pid" yaml:"pid"`
 	Database     *string `db:"datname" yaml:"database"`
 	User         *string `db:"usename" yaml:"username"`
 	ClientAddr   *string `db:"client_addr" yaml:"client_addr"`
@@ -85,7 +86,7 @@ func (w *Watchdog) snapshotActivities(clientAddr string) error {
 	var activities []pgActivity
 	err := w.db.Select(&activities,
 		`select 
-			datname, usename, client_addr, backend_start, xact_start, query_start, state_change, state, query 
+			pid, datname, usename, client_addr, backend_start, xact_start, query_start, state_change, state, query
 		from pg_stat_activity
 		where 
 			client_addr = $1`,
