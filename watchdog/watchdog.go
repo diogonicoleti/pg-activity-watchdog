@@ -11,7 +11,10 @@ import (
 	yaml "gopkg.in/yaml.v2"
 )
 
-const outputDir = "snapshots"
+const (
+	outputDir = "snapshots"
+	fileMode  = 0777
+)
 
 // Watchdog is a watchdog that monitors PostgreSQL activity
 type Watchdog struct {
@@ -38,7 +41,10 @@ type pgActivity struct {
 
 // NewWatchdog returns a new Watchdog
 func NewWatchdog(dataSourceName string, threshould int) *Watchdog {
-	os.Mkdir(outputDir, 0777)
+	if err := os.Mkdir(outputDir, fileMode); err != nil {
+		log.WithError(err).Fatal("Failed to create snapshots directory")
+	}
+
 	return &Watchdog{
 		db:         connect(dataSourceName),
 		threshould: threshould,
@@ -77,13 +83,16 @@ func (w *Watchdog) Execute() {
 
 func (w *Watchdog) snapshotActivities(clientAddr string) error {
 	var activities []pgActivity
-	w.db.Select(&activities,
+	err := w.db.Select(&activities,
 		`select 
 			datname, usename, client_addr, backend_start, xact_start, query_start, state_change, state, query 
 		from pg_stat_activity
 		where 
 			client_addr = $1`,
 		clientAddr)
+	if err != nil {
+		return err
+	}
 
 	activitiesJSON, err := yaml.Marshal(activities)
 	if err != nil {
@@ -94,6 +103,6 @@ func (w *Watchdog) snapshotActivities(clientAddr string) error {
 	return ioutil.WriteFile(
 		outputDir+"/"+clientAddr+"_"+time.Now().Format(time.RFC3339)+".yaml",
 		activitiesJSON,
-		0777,
+		fileMode,
 	)
 }
