@@ -18,7 +18,7 @@ var (
 	version        = "dev"
 	dataSourceName = kingpin.Flag("datasource", "Database connection string").
 			Short('d').Default("user=postgres dbname=postgres sslmode=disable").String()
-	threshould = kingpin.Flag("threshould", "Threshould to take a snapshot").
+	threshold = kingpin.Flag("threshold", "Threshold to take a snapshot").
 			Short('t').Default("30").Int()
 	interval = kingpin.Flag("interval", "Interval to execute the watchdog").
 			Short('i').Default("1s").String()
@@ -32,7 +32,7 @@ func main() {
 	log.Infof("Starting PostgreSQL activity watchdog %s", version)
 	watchdog := watchdog.NewWatchdog(
 		*dataSourceName,
-		*threshould,
+		*threshold,
 	)
 
 	c := cron.New()

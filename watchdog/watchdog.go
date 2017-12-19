@@ -18,8 +18,8 @@ const (
 
 // Watchdog is a watchdog that monitors PostgreSQL activity
 type Watchdog struct {
-	db         *sqlx.DB
-	threshould int
+	db        *sqlx.DB
+	threshold int
 }
 
 type pgClientActivity struct {
@@ -40,19 +40,19 @@ type pgActivity struct {
 }
 
 // NewWatchdog returns a new Watchdog
-func NewWatchdog(dataSourceName string, threshould int) *Watchdog {
+func NewWatchdog(dataSourceName string, threshold int) *Watchdog {
 	if err := os.Mkdir(outputDir, fileMode); err != nil {
 		log.WithError(err).Fatal("Failed to create snapshots directory")
 	}
 
 	return &Watchdog{
-		db:         connect(dataSourceName),
-		threshould: threshould,
+		db:        connect(dataSourceName),
+		threshold: threshold,
 	}
 }
 
 // Execute gets PostgreSQL activities per client and if the
-// connections counts exceeds the threshould takes a snapshot as
+// connections counts exceeds the threshold takes a snapshot as
 // a YAML file
 func (w *Watchdog) Execute() {
 	var clientActivities []pgClientActivity
@@ -72,7 +72,7 @@ func (w *Watchdog) Execute() {
 	}
 
 	for _, ca := range clientActivities {
-		if ca.Total > w.threshould && ca.ClientAddr.Valid {
+		if ca.Total > w.threshold && ca.ClientAddr.Valid {
 			err := w.snapshotActivities(ca.ClientAddr.String)
 			if err != nil {
 				log.WithError(err).Error("Failed to take PostgreSQL activity snapshot")
