@@ -42,7 +42,7 @@ type pgActivity struct {
 
 // NewWatchdog returns a new Watchdog
 func NewWatchdog(dataSourceName string, threshold int) *Watchdog {
-	if err := os.Mkdir(outputDir, fileMode); err != nil {
+	if err := os.Mkdir(outputDir, fileMode); err != nil && !os.IsExist(err) {
 		log.WithError(err).Fatal("Failed to create snapshots directory")
 	}
 
