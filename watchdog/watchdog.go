@@ -11,10 +11,7 @@ import (
 	yaml "gopkg.in/yaml.v2"
 )
 
-const (
-	outputDir = "snapshots"
-	fileMode  = 0777
-)
+const outputDir = "snapshots"
 
 // Watchdog is a watchdog that monitors PostgreSQL activity
 type Watchdog struct {
@@ -42,7 +39,7 @@ type pgActivity struct {
 
 // NewWatchdog returns a new Watchdog
 func NewWatchdog(dataSourceName string, threshold int) *Watchdog {
-	if err := os.Mkdir(outputDir, fileMode); err != nil && !os.IsExist(err) {
+	if err := os.Mkdir(outputDir, os.ModePerm); err != nil && !os.IsExist(err) {
 		log.WithError(err).Fatal("Failed to create snapshots directory")
 	}
 
@@ -104,6 +101,6 @@ func (w *Watchdog) snapshotActivities(clientAddr string) error {
 	return ioutil.WriteFile(
 		outputDir+"/"+clientAddr+"_"+time.Now().Format(time.RFC3339)+".yaml",
 		bts,
-		fileMode,
+		os.ModePerm,
 	)
 }
