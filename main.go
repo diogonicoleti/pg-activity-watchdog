@@ -15,21 +15,26 @@ import (
 )
 
 var (
+	app            = kingpin.New("Postgres Activity Watchdog", "An app that monitors some metrics and takes a snapshot if it exceeds a configured threshold")
 	version        = "dev"
-	dataSourceName = kingpin.Flag("datasource", "Database connection string").
-			Short('d').Default("user=postgres dbname=postgres sslmode=disable").String()
-	threshold = kingpin.Flag("threshold", "Threshold to take a snapshot").
-			Short('t').Default("30").Int()
-	interval = kingpin.Flag("interval", "Interval to execute the watchdog").
-			Short('i').Default("1s").String()
+	dataSourceName = app.Flag("datasource", "Database connection string").
+			Short('d').
+			Default("user=postgres dbname=postgres sslmode=disable").String()
+	threshold = app.Flag("threshold", "Threshold to take a snapshot").
+			Short('t').
+			Default("30").Int()
+	interval = app.Flag("interval", "Interval to execute the watchdog").
+			Short('i').
+			Default("1s").String()
 )
 
 func main() {
-	kingpin.Version(version)
-	kingpin.HelpFlag.Short('h')
-	kingpin.Parse()
+	app.Version(version)
+	app.DefaultEnvars()
+	kingpin.MustParse(app.Parse(os.Args[1:]))
 
 	log.Infof("Starting PostgreSQL activity watchdog %s", version)
+	log.Infof("%v", *dataSourceName)
 	watchdog := watchdog.NewWatchdog(
 		*dataSourceName,
 		*threshold,
