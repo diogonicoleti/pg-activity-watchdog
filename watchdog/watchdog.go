@@ -2,13 +2,12 @@ package watchdog
 
 import (
 	"database/sql"
-	"io/ioutil"
+	"encoding/json"
+	"fmt"
 	"os"
-	"time"
 
 	"github.com/apex/log"
 	"github.com/jmoiron/sqlx"
-	yaml "gopkg.in/yaml.v2"
 )
 
 const outputDir = "snapshots"
@@ -92,15 +91,13 @@ func (w *Watchdog) snapshotActivities(clientAddr string) error {
 		return err
 	}
 
-	bts, err := yaml.Marshal(activities)
+	bts, err := json.Marshal(activities)
 	if err != nil {
 		return err
 	}
 
 	log.Infof("Generating snapshot for client %s", clientAddr)
-	return ioutil.WriteFile(
-		outputDir+"/"+clientAddr+"_"+time.Now().Format(time.RFC3339)+".yaml",
-		bts,
-		os.ModePerm,
-	)
+	fmt.Println(string(bts))
+
+	return nil
 }
